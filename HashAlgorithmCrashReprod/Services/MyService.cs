@@ -1,8 +1,10 @@
 ﻿using HashAlgorithmCrashReprod.Helpers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using DeepCloner = ObjectCloner.ObjectCloner;
 
 namespace HashAlgorithmCrashReprod.Services
 {
@@ -17,8 +19,10 @@ namespace HashAlgorithmCrashReprod.Services
 
         public async Task<bool> ValidateAccessTokenAsync(string accessToken)
         {
+            TokenValidationParameters validationParameters = DeepCloner.DeepClone(AccessTokenOptions.ValidationParameters);
+
             JsonWebTokenHandler tokenHandler = new();
-            return (await tokenHandler.ValidateTokenAsync(accessToken, AccessTokenOptions.ValidationParameters)).IsValid;
+            return (await tokenHandler.ValidateTokenAsync(accessToken, validationParameters)).IsValid;
         }
 
         public string GenerateAccessToken(string userId)
