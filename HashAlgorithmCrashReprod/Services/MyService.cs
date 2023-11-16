@@ -17,10 +17,20 @@ namespace HashAlgorithmCrashReprod.Services
             AccessTokenOptions = accessTokenOptions.Value;
         }
 
-        public async Task<bool> ValidateAccessTokenAsync(string accessToken)
+        public async Task<bool> ValidateAccessTokenWithShallowClonedParametersAsync(string accessToken)
+        {
+            TokenValidationParameters validationParameters = AccessTokenOptions.ValidationParameters.Clone();
+            return await ValidateAccessTokenAsync(validationParameters, accessToken);
+        }
+
+        public async Task<bool> ValidateAccessTokenWithDeepClonedParametersAsync(string accessToken)
         {
             TokenValidationParameters validationParameters = DeepCloner.DeepClone(AccessTokenOptions.ValidationParameters);
+            return await ValidateAccessTokenAsync(validationParameters, accessToken);
+        }
 
+        private async Task<bool> ValidateAccessTokenAsync(TokenValidationParameters validationParameters, string accessToken)
+        {
             JsonWebTokenHandler tokenHandler = new();
             return (await tokenHandler.ValidateTokenAsync(accessToken, validationParameters)).IsValid;
         }

@@ -23,12 +23,20 @@ namespace HashAlgorithmCrashReprod.Controllers
 
         [HttpGet]
         [Route("run-test")]
-        public async Task<IActionResult> RunTestAsync()
+        public async Task<IActionResult> RunTestAsync([FromQuery]bool deepCloneValidationParams)
         {
             string userId = Guid.NewGuid().ToString();
             string accessToken = MyService.GenerateAccessToken(userId);
 
-            await MyService.ValidateAccessTokenAsync(accessToken);
+            if(deepCloneValidationParams)
+            {
+                await MyService.ValidateAccessTokenWithDeepClonedParametersAsync(accessToken);
+            }
+
+            else
+            {
+                await MyService.ValidateAccessTokenWithShallowClonedParametersAsync(accessToken);
+            }
 
             return Ok();
         }
